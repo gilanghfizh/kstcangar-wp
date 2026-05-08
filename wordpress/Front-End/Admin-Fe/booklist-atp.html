@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booklist ATP - KST Cangar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #1abc9c;
+        }
+
+        .header-title h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .header-title p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .btn-primary {
+            background: #1abc9c;
+            color: white;
+            border: 1px solid #1abc9c;
+        }
+
+        .btn-primary:hover {
+            background: #16a085;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+        }
+
+        .container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            width: 200px;
+            background: white;
+            padding: 2rem 0;
+            border-right: 1px solid #ecf0f1;
+            position: fixed;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+
+        .sidebar-item {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #666;
+            text-decoration: none;
+        }
+
+        .sidebar-item:hover {
+            background: #f5f7fa;
+            color: #1abc9c;
+        }
+
+        .sidebar-item.active {
+            background: #e8f8f5;
+            color: #1abc9c;
+            border-right: 3px solid #1abc9c;
+        }
+
+        .main {
+            flex: 1;
+            margin-left: 200px;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .page-subtitle {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .kpi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .kpi-icon.blue {
+            background: #e3f2fd;
+            color: #2196f3;
+        }
+
+        .kpi-icon.green {
+            background: #e8f5e9;
+            color: #4caf50;
+        }
+
+        .kpi-icon.teal {
+            background: #e0f2f1;
+            color: #009688;
+        }
+
+        .kpi-icon.orange {
+            background: #fff3e0;
+            color: #ff9800;
+        }
+
+        .kpi-label {
+            color: #7f8c8d;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #1abc9c;
+            box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn.active {
+            background: #1abc9c;
+            color: white;
+            border-color: #1abc9c;
+        }
+
+        .filter-btn:hover {
+            border-color: #1abc9c;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        table thead {
+            background: #f5f7fa;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        table td {
+            padding: 1rem;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-paid {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-unpaid {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-icon:hover {
+            border-color: #1abc9c;
+            color: #1abc9c;
+        }
+
+        .btn-icon.delete:hover {
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+
+        .modal-close:hover {
+            color: #2c3e50;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group.two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-group.required label::after {
+            content: ' *';
+            color: #e74c3c;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #1abc9c;
+            box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.1);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #bdc3c7;
+        }
+
+        .file-upload {
+            border: 2px dashed #ddd;
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+
+        .file-upload:hover {
+            border-color: #1abc9c;
+            background: #f0fffe;
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #7f8c8d;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                transform: translateX(-100%);
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .container {
+                flex-direction: column;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .form-group.two-col {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            table {
+                font-size: 0.8rem;
+            }
+
+            table th, table td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">🏕️</div>
+            <div class="header-title">
+                <h1>KST Cangar</h1>
+                <p>STP Universitas Brawijaya</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="btn btn-outline">🏠 Kembali ke Beranda</button>
+            <button class="btn btn-outline">👤 admin</button>
+            <button class="btn btn-outline">🚪 Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="#" class="sidebar-item">📊 Dashboard</a>
+            <a href="#" class="sidebar-item">📋 Stok Opname</a>
+            <a href="#" class="sidebar-item active">📅 Booklist ATP</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h1 class="page-title">Booklist ATP</h1>
+                        <p class="page-subtitle">Kelola data reservasi pengunjung</p>
+                    </div>
+                    <button class="btn btn-success btn-sm" onclick="openFormModal()">+ Tambah Booking</button>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon blue">📅</div>
+                    <div class="kpi-label">Total Booking</div>
+                    <div class="kpi-value">12</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon green">💰</div>
+                    <div class="kpi-label">Total Pendapatan</div>
+                    <div class="kpi-value">Rp 18 Jt</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon teal">👥</div>
+                    <div class="kpi-label">Lunas</div>
+                    <div class="kpi-value">8</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon orange">📄</div>
+                    <div class="kpi-label">Belum Lunas / DP</div>
+                    <div class="kpi-value">4</div>
+                </div>
+            </div>
+
+            <!-- Booking List Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Daftar Booking</h2>
+                </div>
+
+                <!-- Controls -->
+                <div class="controls">
+                    <div class="search-box">
+                        <input type="text" placeholder="🔍 Cari nama pengunjung...">
+                    </div>
+                    <div class="filter-group">
+                        <button class="filter-btn active">Semua</button>
+                        <button class="filter-btn">Lunas</button>
+                        <button class="filter-btn">DP</button>
+                        <button class="filter-btn">Belum Bayar</button>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama</th>
+                                <th>Jumlah Tamu</th>
+                                <th>Check In</th>
+                                <th>Check Out</th>
+                                <th>Kontak</th>
+                                <th>Tipe</th>
+                                <th>No Unit</th>
+                                <th>Harga</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingTable">
+                            <tr>
+                                <td>1</td>
+                                <td>
+                                    <strong>Ahmad Rizki</strong><br>
+                                    <span style="color: #7f8c8d; font-size: 0.85rem;">Malang, Jawa Timur</span>
+                                </td>
+                                <td>4 orang</td>
+                                <td>1/5/2026</td>
+                                <td>3/5/2026</td>
+                                <td>081234567890</td>
+                                <td>Glamping Deluxe</td>
+                                <td>Deluxe 3</td>
+                                <td>Rp 1.500.000</td>
+                                <td><span class="status-badge status-paid">Lunas</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon" onclick="editBooking(1)" title="Edit">✏️</button>
+                                        <button class="btn-icon delete" onclick="deleteBooking(1)" title="Hapus">🗑️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>
+                                    <strong>Siti Nurhaliza</strong><br>
+                                    <span style="color: #7f8c8d; font-size: 0.85rem;">Jakarta, DKI Jakarta</span>
+                                </td>
+                                <td>2 orang</td>
+                                <td>5/5/2026</td>
+                                <td>7/5/2026</td>
+                                <td>085098765432</td>
+                                <td>Camping Ground</td>
+                                <td>Camping 5</td>
+                                <td>Rp 800.000</td>
+                                <td><span class="status-badge status-pending">DP</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon" onclick="editBooking(2)" title="Edit">✏️</button>
+                                        <button class="btn-icon delete" onclick="deleteBooking(2)" title="Hapus">🗑️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>
+                                    <strong>Budi Santoso</strong><br>
+                                    <span style="color: #7f8c8d; font-size: 0.85rem;">Surabaya, Jawa Timur</span>
+                                </td>
+                                <td>6 orang</td>
+                                <td>8/5/2026</td>
+                                <td>10/5/2026</td>
+                                <td>087654321098</td>
+                                <td>Glamping Long</td>
+                                <td>Long 2</td>
+                                <td>Rp 2.000.000</td>
+                                <td><span class="status-badge status-unpaid">Belum Bayar</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon" onclick="editBooking(3)" title="Edit">✏️</button>
+                                        <button class="btn-icon delete" onclick="deleteBooking(3)" title="Hapus">🗑️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Modal -->
+    <div class="modal" id="formModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="formTitle">Form Input Booking</h2>
+                <button class="modal-close" onclick="closeFormModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="bookingForm">
+                    <div class="form-group two-col required">
+                        <div>
+                            <label>Nama Pengunjung</label>
+                            <input type="text" placeholder="Nama lengkap" id="namaInput">
+                        </div>
+                        <div>
+                            <label>Jumlah Tamu</label>
+                            <input type="number" placeholder="Contoh: 4" min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group two-col required">
+                        <div>
+                            <label>No WhatsApp</label>
+                            <input type="text" placeholder="08xxxxxxxxxx">
+                        </div>
+                        <div>
+                            <label>Tipe</label>
+                            <select>
+                                <option>Pilih Tipe</option>
+                                <option>Glamping Deluxe</option>
+                                <option>Glamping Long</option>
+                                <option>Camping Ground</option>
+                                <option>Camping Sederhana</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group required">
+                        <label>No Unit Glamping</label>
+                        <select>
+                            <option>Pilih Unit</option>
+                            <option>Deluxe 1</option>
+                            <option>Deluxe 2</option>
+                            <option>Deluxe 3</option>
+                            <option>Long 1</option>
+                            <option>Long 2</option>
+                            <option>Camping 5</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group two-col required">
+                        <div>
+                            <label>Tanggal Check In</label>
+                            <input type="date">
+                        </div>
+                        <div>
+                            <label>Tanggal Check Out</label>
+                            <input type="date">
+                        </div>
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Alamat</label>
+                        <textarea placeholder="Alamat lengkap pengunjung"></textarea>
+                    </div>
+
+                    <div class="form-group two-col">
+                        <div class="required">
+                            <label>Harga</label>
+                            <input type="number" placeholder="0">
+                        </div>
+                        <div class="required">
+                            <label>Status Pembayaran</label>
+                            <select>
+                                <option>Belum Lunas</option>
+                                <option>DP</option>
+                                <option>Lunas</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group two-col">
+                        <div>
+                            <label>Metode Pembayaran</label>
+                            <select>
+                                <option>Transfer Bank</option>
+                                <option>Tunai</option>
+                                <option>E-Wallet</option>
+                                <option>Lainnya</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Bukti Pembayaran</label>
+                            <div class="file-upload" onclick="document.getElementById('fileInput').click()">
+                                📎 Upload File
+                                <input type="file" id="fileInput">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group two-col">
+                        <div>
+                            <label>No. Receipt</label>
+                            <input type="text" placeholder="RCP-XXX-2026">
+                        </div>
+                        <div>
+                            <label>No. Invoice</label>
+                            <input type="text" placeholder="INV-XXX-2026">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Additional Needs</label>
+                        <textarea placeholder="Misalnya: sewa kompor, matras tambahan, tenda dome, dll"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeFormModal()">Batal</button>
+                <button class="btn btn-success" onclick="saveBooking()">Simpan Booking</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openFormModal() {
+            document.getElementById('formModal').classList.add('active');
+            document.getElementById('formTitle').textContent = 'Form Input Booking';
+            document.getElementById('bookingForm').reset();
+        }
+
+        function closeFormModal() {
+            document.getElementById('formModal').classList.remove('active');
+        }
+
+        function editBooking(id) {
+            openFormModal();
+            document.getElementById('formTitle').textContent = 'Form Edit Booking';
+            // Populate form with data (implementation)
+        }
+
+        function deleteBooking(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus booking ini?')) {
+                // Delete implementation
+                console.log('[v0] Deleting booking:', id);
+            }
+        }
+
+        function saveBooking() {
+            console.log('[v0] Saving booking');
+            // Save logic
+            closeFormModal();
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('formModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeFormModal();
+            }
+        });
+
+        // Filter functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                console.log('[v0] Filter clicked:', this.textContent);
+            });
+        });
+    </script>
+</body>
+</html>

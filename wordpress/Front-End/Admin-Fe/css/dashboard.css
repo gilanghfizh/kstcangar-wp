@@ -15,7 +15,7 @@ html, body {
 /* ========== Colors & Variables ========== */
 :root {
     --primary-teal: #17a2b8;
-    --primary-green: #009966;
+    --primary-green: #28a745;
     --primary-orange: #fd7e14;
     --primary-blue: #007bff;
     --neutral-light: #f8f9fa;
@@ -30,7 +30,7 @@ html, body {
 
 /* ========== Header ========== */
 .header {
-    background: linear-gradient(135deg, #009966 0%, #009966 100%);
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
     color: white;
     padding: 1rem 2rem;
     display: flex;
