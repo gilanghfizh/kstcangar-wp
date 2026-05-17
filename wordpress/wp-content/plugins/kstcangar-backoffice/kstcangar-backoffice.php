@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: KST Cangar Backoffice
- * Description: Sistem manajemen backoffice KST Cangar — Stok Opname, Booking, dan Keuangan.
- * Version: 1.2.0
+ * Description: Sistem manajemen backoffice KST Cangar — Stok Opname, Booking, Keuangan, dan REST API dengan JWT.
+ * Version: 1.4.0
  * Author: Kelompok 3 - Universitas Brawijaya
  */
 
@@ -15,6 +15,8 @@ define('KSTCANGAR_URL',  plugin_dir_url(__FILE__));
 require_once KSTCANGAR_PATH . 'includes/class-database.php';
 require_once KSTCANGAR_PATH . 'includes/class-roles.php';
 require_once KSTCANGAR_PATH . 'includes/class-helpers.php';
+require_once KSTCANGAR_PATH . 'includes/class-jwt.php'; // ← tambahan
+require_once KSTCANGAR_PATH . 'includes/class-api.php';
 
 // Modul
 require_once KSTCANGAR_PATH . 'modules/stok/class-stok.php';
@@ -32,12 +34,14 @@ register_deactivation_hook(__FILE__, function () {
     flush_rewrite_rules();
 });
 
-// ── Init Modul ────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────
 add_action('init', function () {
     new KSTCangar_Stok();
     new KSTCangar_Booking();
     new KSTCangar_Keuangan();
 });
+
+KSTCangar_API::register();
 
 // ── Admin Menu ────────────────────────────────────────────
 add_action('admin_menu', function () {
@@ -46,14 +50,11 @@ add_action('admin_menu', function () {
         'KST Cangar', 'KST Cangar', 'kstcangar_access',
         'kstcangar',
         function () {
-            // Halaman utama — tampilkan ringkasan semua modul
             $booking_stats  = KSTCangar_Booking::get_stats();
             $keuangan_stats = KSTCangar_Keuangan::get_stats();
             echo '<div class="wrap">';
             echo '<h1>🌿 Backoffice KST Cangar</h1>';
             echo '<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:20px;">';
-
-            // Card Booking
             echo '<div style="background:#fff; border:1px solid #ddd; border-radius:6px; padding:20px;">
                     <h3 style="margin-top:0;">📅 Booking</h3>
                     <p>Pending: <strong>' . $booking_stats['pending'] . '</strong></p>
@@ -61,8 +62,6 @@ add_action('admin_menu', function () {
                     <p>Confirmed bulan ini: <strong>' . $booking_stats['confirmed_month'] . '</strong></p>
                     <a href="' . admin_url('admin.php?page=kstcangar-booking') . '" class="button">Kelola Booking</a>
                   </div>';
-
-            // Card Keuangan
             echo '<div style="background:#fff; border:1px solid #ddd; border-radius:6px; padding:20px;">
                     <h3 style="margin-top:0;">💰 Keuangan</h3>
                     <p>Pemasukan hari ini: <strong style="color:#5cb85c;">' . KSTCangar_Helpers::rupiah($keuangan_stats['income_today']) . '</strong></p>
@@ -70,14 +69,11 @@ add_action('admin_menu', function () {
                     <p>Menunggu validasi: <strong>' . $keuangan_stats['pending_count'] . '</strong></p>
                     <a href="' . admin_url('admin.php?page=kstcangar-keuangan') . '" class="button">Kelola Keuangan</a>
                   </div>';
-
-            // Card Stok
             echo '<div style="background:#fff; border:1px solid #ddd; border-radius:6px; padding:20px;">
                     <h3 style="margin-top:0;">📦 Stok Opname</h3>
                     <p>Kelola stok harian café dan laporan mingguan.</p>
                     <a href="' . admin_url('admin.php?page=kstcangar-stok') . '" class="button">Kelola Stok</a>
                   </div>';
-
             echo '</div></div>';
         },
         'dashicons-store', 30
@@ -96,5 +92,5 @@ add_action('admin_menu', function () {
 // ── Assets ────────────────────────────────────────────────
 add_action('admin_enqueue_scripts', function ($hook) {
     if (strpos($hook, 'kstcangar') === false) return;
-    wp_enqueue_style('kstcangar-admin', KSTCANGAR_URL . 'assets/css/admin.css', [], '1.2.0');
+    wp_enqueue_style('kstcangar-admin', KSTCANGAR_URL . 'assets/css/admin.css', [], '1.4.0');
 });
