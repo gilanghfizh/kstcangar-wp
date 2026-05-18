@@ -29,6 +29,12 @@ class KSTCangar_API {
             'permission_callback' => '__return_true',
         ]);
 
+        register_rest_route($namespace, '/auth/me', [
+            'methods'             => 'GET',
+            'callback'            => [self::class, 'me'],
+            'permission_callback' => [self::class, 'check_auth'],
+        ]);
+
         register_rest_route($namespace, '/auth/logout', [
             'methods'             => 'POST',
             'callback'            => [self::class, 'logout'],
@@ -171,8 +177,8 @@ class KSTCangar_API {
         }
 
         $request->set_param('_jwt_payload', $payload);
-        $request->set_param('_jwt_user_id', $payload['user_id']);
-        $request->set_param('_jwt_role',    $payload['role']);
+        $request->set_param('_jwt_user_id', $payload['sub'] ?? null);
+        $request->set_param('_jwt_role',    $payload['roles'][self::KST_IDENTIFIER][0] ?? 'publik');
 
         return true;
     }
@@ -251,6 +257,23 @@ class KSTCangar_API {
         ]);
 
         return $response;
+    }
+
+        /**
+     * GET /auth/me
+     * Cek token aktif & info user yang sedang login
+     */
+    public static function me(WP_REST_Request $request): WP_REST_Response {
+        $payload = $request->get_param('_jwt_payload');
+
+        return self::ok([
+            'userid'   => $payload['sub']      ?? null,
+            'username' => $payload['username'] ?? null,
+            'name'     => $payload['name']     ?? null,
+            'roles'    => $payload['roles']    ?? [],
+            'iat'      => $payload['iat']      ?? null,
+            'exp'      => $payload['exp']      ?? null,
+        ]);
     }
 
     /**
