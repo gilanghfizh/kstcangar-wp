@@ -1,0 +1,84 @@
+/* =========================
+   IMPACT
+========================= */
+
+.impact-grid{
+  display:grid;
+  grid-template-columns:1.1fr 1fr;
+  gap:40px;
+}
+
+.impact-image-wrapper{
+  position:relative;
+}
+
+.impact-image{
+  height:600px;
+  object-fit:cover;
+  border-radius:24px;
+}
+
+.impact-stats{
+  position:absolute;
+  left:25px;
+  bottom:25px;
+  display:flex;
+  gap:20px;
+}
+
+.stat-card{
+  background:#fff;
+  padding:18px 22px;
+  border-radius:14px;
+  min-width:160px;
+}
+
+.stat-card h3{
+  color:#0d944b;
+  font-size:34px;
+  margin-bottom:5px;
+}
+
+.impact-benefits{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
+.benefit-card{
+  background:#fff;
+  border:2px solid #0d944b;
+  border-radius:20px;
+  padding:28px;
+  display:flex;
+  gap:20px;
+}
+
+.benefit-icon{
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  background:#e8f7ef;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  flex-shrink:0;
+}
+
+.benefit-card h4{
+  font-size:22px;
+  margin-bottom:10px;
+}
+
+.benefit-card p{
+  color:#666;
+  line-height:1.8;
+}
+
+/* Responsive - Impact */
+@media(max-width:1100px){
+  .impact-grid{
+    grid-template-columns:1fr;
+  }
+}

@@ -1,0 +1,91 @@
+/* =========================
+   UMKM
+========================= */
+
+.umkm-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:25px;
+}
+
+.umkm-card{
+  background:#fff;
+  border-radius:20px;
+  overflow:hidden;
+  border:1px solid #eee;
+}
+
+.umkm-image{
+  height:200px;
+  background:#dff1e8;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:70px;
+  position:relative;
+}
+
+.badge{
+  position:absolute;
+  top:15px;
+  right:15px;
+  background:#0d944b;
+  color:#fff;
+  padding:8px 14px;
+  border-radius:999px;
+  font-size:11px;
+}
+
+.umkm-content{
+  padding:24px;
+}
+
+.umkm-category{
+  display:inline-block;
+  padding:6px 12px;
+  background:#f2f2f2;
+  border-radius:999px;
+  font-size:12px;
+  margin-bottom:15px;
+}
+
+.umkm-title-rating{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:12px;
+}
+
+.umkm-content p{
+  color:#666;
+  line-height:1.8;
+  margin-bottom:20px;
+}
+
+.umkm-footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.umkm-footer strong{
+  color:#0d944b;
+}
+
+/* Responsive - UMKM */
+@media(max-width:1100px){
+  .umkm-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:768px){
+  .umkm-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:500px){
+  .umkm-grid{
+    grid-template-columns:1fr;
+  }
+}
