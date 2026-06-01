@@ -63,9 +63,8 @@ function kst_enqueue_assets(){
         'kst-api',
         'kstConfig',
         [
-            'baseUrl' => home_url(
-                '/wp-json/kstcangar/v1'
-            )
+            'baseUrl' => rest_url('kstcangar/v1'),
+            'nonce'   => wp_create_nonce('wp_rest'),
         ]
     );
 

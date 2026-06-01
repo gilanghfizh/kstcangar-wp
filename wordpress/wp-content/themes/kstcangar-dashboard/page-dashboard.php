@@ -1,10 +1,5 @@
 <?php
-/*
-Template Name: Dashboard
-Template Post Type: page
-*/
 
-// Redirect if not logged in
 if (!is_user_logged_in()) {
     wp_redirect(wp_login_url(get_permalink()));
     exit;
@@ -98,7 +93,7 @@ $current_user = wp_get_current_user();
                 </div>
                 <div class="stat-badge green-badge">+1 item baru</div>
                 <span>Total Item Stok</span>
-                <h2 id="stat-item-stok">4</h2>
+                <h2 id="stat-item-stok">–</h2>
             </div>
             <div class="stat-card">
                 <div class="icon-box green">
@@ -106,7 +101,7 @@ $current_user = wp_get_current_user();
                 </div>
                 <div class="stat-badge blue-badge">Total unit</div>
                 <span>Stok Tersedia</span>
-                <h2 id="stat-stok">1,590</h2>
+                <h2 id="stat-stok">–</h2>
             </div>
             <div class="stat-card">
                 <div class="icon-box teal">
@@ -114,7 +109,7 @@ $current_user = wp_get_current_user();
                 </div>
                 <div class="stat-badge green-badge">Aktif</div>
                 <span>Total Booking</span>
-                <h2 id="stat-booking">1</h2>
+                <h2 id="stat-booking">–</h2>
             </div>
             <div class="stat-card">
                 <div class="icon-box orange">
@@ -122,7 +117,7 @@ $current_user = wp_get_current_user();
                 </div>
                 <div class="stat-badge orange-badge">+8%</div>
                 <span>Pendapatan Booking</span>
-                <h2 id="stat-pendapatan">Rp 1.5 Jt</h2>
+                <h2 id="stat-pendapatan">–</h2>
             </div>
         </div>
 

@@ -1,8 +1,4 @@
 <?php
-/*
-Template Name: Booklist ATP
-Template Post Type: page
-*/
 
 if (!is_user_logged_in()) {
     wp_redirect(wp_login_url(get_permalink()));
@@ -286,181 +282,52 @@ $current_user = wp_get_current_user();
 </div>
 
 <script>
-
-const unitOptions={
-
-'Glamping Deluxe':[
-'Deluxe 1',
-'Deluxe 2',
-'Deluxe 3',
-'Deluxe 4',
-'Deluxe 5'
-],
-
-'Glamping Long':[
-'Long Unit 8',
-'Long Unit 9',
-'Long Unit 10',
-'Long Unit 11'
-],
-
-'Camping Ground':[
-'Camping Ground Atas',
-'Camping Ground Bawah'
-]
-
+const unitOptions = {
+  "Glamping Deluxe": ["Deluxe 1","Deluxe 2","Deluxe 3","Deluxe 4","Deluxe 5"],
+  "Glamping Long":   ["Long Unit 8","Long Unit 9","Long Unit 10","Long Unit 11"],
+  "Camping Ground":  ["Camping Ground Atas","Camping Ground Bawah"],
 };
 
-function showBookingForm(){
-
-document.getElementById(
-"bookingFormBox"
-).style.display=
-"block";
-
+function toggleDropdown(dropId, wrapId) {
+  document.getElementById(wrapId).classList.toggle("open");
 }
 
-function hideBookingForm(){
-
-document.getElementById(
-"bookingFormBox"
-).style.display=
-"none";
-
+function selectTipe(radio) {
+  document.getElementById("b-tipe").value       = radio.value;
+  document.getElementById("tipeLabel").innerText = radio.value;
+  buildUnitOptions(radio.value);
 }
 
-function toggleDropdown(
-dropId,
-wrapId
-){
-
-document.getElementById(
-wrapId
-).classList.toggle(
-"open"
-);
-
-}
-
-function selectTipe(
-radio
-){
-
-document.getElementById(
-"b-tipe"
-).value=
-radio.value;
-
-document.getElementById(
-"tipeLabel"
-).innerText=
-radio.value;
-
-buildUnitOptions(
-radio.value
-);
-
-}
-
-function buildUnitOptions(
-tipe
-){
-
-const drop=
-document.getElementById(
-"unitDropdown"
-);
-
-drop.innerHTML=
-(
-unitOptions[
-tipe
-]||[]
-)
-.map(
-item=>`
-
+function buildUnitOptions(tipe) {
+  const drop = document.getElementById("unitDropdown");
+  if (!drop) return;
+  drop.innerHTML = (unitOptions[tipe] || [])
+    .map((item) => `
 <label class="cs-option">
-
-<input
-type="radio"
-name="unit"
-value="${item}"
-onchange="selectUnit(this)"
->
-
-${item}
-
-</label>
-
-`
-)
-.join("");
-
+  <input type="radio" name="unit" value="${item}" onchange="selectUnit(this)">
+  ${item}
+</label>`)
+    .join("");
 }
 
-function selectUnit(
-radio
-){
-
-document.getElementById(
-"b-unit"
-).value=
-radio.value;
-
-document.getElementById(
-"unitLabel"
-).innerText=
-radio.value;
-
+function selectUnit(radio) {
+  document.getElementById("b-unit").value       = radio.value;
+  document.getElementById("unitLabel").innerText = radio.value;
 }
 
-function handleFileUpload(
-input
-){
-
-if(
-input.files[0]
-){
-
-document.getElementById(
-"b-bukti-display"
-).value=
-input.files[0].name;
-
+function handleFileUpload(input) {
+  if (input.files[0]) {
+    document.getElementById("b-bukti-display").value = input.files[0].name;
+  }
 }
 
-}
-
-function simpanBooking(){}
-function hapusBooking(){}
-
-document.addEventListener(
-"click",
-function(e){
-
-if(
-!e.target.closest(
-".custom-select-wrap"
-)
-){
-
-document
-.querySelectorAll(
-".custom-select-wrap.open"
-)
-.forEach(
-el=>
-el.classList.remove(
-"open"
-)
-);
-
-}
-
-}
-);
-
+// Tutup dropdown saat klik di luar
+document.addEventListener("click", function (e) {
+  if (!e.target.closest(".custom-select-wrap")) {
+    document.querySelectorAll(".custom-select-wrap.open")
+      .forEach((el) => el.classList.remove("open"));
+  }
+});
 </script>
 
 <?php wp_footer(); ?>

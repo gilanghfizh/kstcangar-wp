@@ -1,17 +1,10 @@
 <?php
 defined('ABSPATH') || exit;
 
-/**
- * KSTCangar_API
- * REST API sesuai kontrak data KST Dashboard v0.0.1
- * Base URL: /wp-json/kstcangar/v1/
- */
 class KSTCangar_API {
 
-    // Identifier KST ini — dipakai di JWT claims roles
     const KST_IDENTIFIER = 'kst-cangar';
 
-    // Versi kontrak data
     const CONTRACT_VERSION = '0.0.1';
 
     public static function register(): void {
@@ -22,7 +15,6 @@ class KSTCangar_API {
 
         $namespace = 'kstcangar/v1';
 
-        // ── AUTH ──────────────────────────────────────────
         register_rest_route($namespace, '/auth/login', [
             'methods'             => 'POST',
             'callback'            => [self::class, 'login'],
@@ -47,64 +39,94 @@ class KSTCangar_API {
             'permission_callback' => '__return_true',
         ]);
 
-        // ── HEALTH CHECK ──────────────────────────────────
         register_rest_route($namespace, '/health', [
             'methods'             => 'GET',
             'callback'            => [self::class, 'health_check'],
             'permission_callback' => '__return_true',
         ]);
 
-        // ── CONTRACT ──────────────────────────────────────
         register_rest_route($namespace, '/contract', [
             'methods'             => 'GET',
             'callback'            => [self::class, 'get_contract'],
             'permission_callback' => [self::class, 'check_auth'],
         ]);
 
-        // ── DATA ENDPOINTS ────────────────────────────────
-        // Booking
         register_rest_route($namespace, '/data/booking', [
-            'methods'             => 'GET',
-            'callback'            => [self::class, 'get_booking'],
-            'permission_callback' => [self::class, 'check_auth'],
+            [
+                'methods'             => 'GET',
+                'callback'            => [self::class, 'get_booking'],
+                'permission_callback' => [self::class, 'check_auth'],
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [self::class, 'create_booking'],
+                'permission_callback' => [self::class, 'check_auth'],
+            ],
         ]);
 
-        // Keuangan
+        register_rest_route($namespace, '/data/booking/(?P<id>\d+)', [
+            [
+                'methods'             => 'PUT',
+                'callback'            => [self::class, 'update_booking'],
+                'permission_callback' => [self::class, 'check_auth'],
+            ],
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [self::class, 'delete_booking'],
+                'permission_callback' => [self::class, 'check_auth'],
+            ],
+        ]);
+
         register_rest_route($namespace, '/data/keuangan', [
             'methods'             => 'GET',
             'callback'            => [self::class, 'get_keuangan'],
             'permission_callback' => [self::class, 'check_auth'],
         ]);
 
-        // Keuangan rekap
         register_rest_route($namespace, '/data/keuangan/rekap', [
             'methods'             => 'GET',
             'callback'            => [self::class, 'get_keuangan_rekap'],
             'permission_callback' => [self::class, 'check_auth'],
         ]);
 
-        // Stok opname
         register_rest_route($namespace, '/data/stok', [
-            'methods'             => 'GET',
-            'callback'            => [self::class, 'get_stok'],
-            'permission_callback' => [self::class, 'check_auth'],
+            [
+                'methods'             => 'GET',
+                'callback'            => [self::class, 'get_stok'],
+                'permission_callback' => [self::class, 'check_auth'],
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [self::class, 'create_stok'],
+                'permission_callback' => [self::class, 'check_auth'],
+            ],
         ]);
 
-        // Stok items
+        register_rest_route($namespace, '/data/stok/(?P<id>\d+)', [
+            [
+                'methods'             => 'PUT',
+                'callback'            => [self::class, 'update_stok'],
+                'permission_callback' => [self::class, 'check_auth'],
+            ],
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [self::class, 'delete_stok'],
+                'permission_callback' => [self::class, 'check_auth'],
+            ],
+        ]);
+
         register_rest_route($namespace, '/data/stok/items', [
             'methods'             => 'GET',
             'callback'            => [self::class, 'get_stok_items'],
             'permission_callback' => [self::class, 'check_auth'],
         ]);
 
-        // Summary
         register_rest_route($namespace, '/data/summary', [
             'methods'             => 'GET',
             'callback'            => [self::class, 'get_summary'],
             'permission_callback' => [self::class, 'check_auth'],
         ]);
 
-        // ── QUERY AGREGAT ─────────────────────────────────
         register_rest_route($namespace, '/query', [
             'methods'             => 'POST',
             'callback'            => [self::class, 'query'],
@@ -112,15 +134,10 @@ class KSTCangar_API {
         ]);
     }
 
-    // ══════════════════════════════════════════════════════
-    // RESPONSE HELPERS — sesuai kontrak
-    // ══════════════════════════════════════════════════════
-
     private static function timestamp(): string {
-        return current_time('c'); // ISO 8601 dengan timezone
+        return current_time('c'); 
     }
 
-    /** Response sukses standar */
     private static function ok($response_data, int $status = 200): WP_REST_Response {
         return new WP_REST_Response([
             'timestamp' => self::timestamp(),
@@ -128,7 +145,6 @@ class KSTCangar_API {
         ], $status);
     }
 
-    /** Response error standar */
     private static function err(int $code, string $message): WP_REST_Response {
         return new WP_REST_Response([
             'timestamp' => self::timestamp(),
@@ -140,10 +156,6 @@ class KSTCangar_API {
         ], $code);
     }
 
-    /**
-     * Bungkus data dengan DataContainer sesuai kontrak.
-     * Dipakai untuk semua endpoint /data/{path}
-     */
     private static function data_container(string $code, $data, ?string $created_at = null, ?string $updated_at = null): array {
         return [
             'code'      => $code,
@@ -152,10 +164,6 @@ class KSTCangar_API {
             'data'      => $data,
         ];
     }
-
-    // ══════════════════════════════════════════════════════
-    // AUTH CHECK
-    // ══════════════════════════════════════════════════════
 
     public static function check_auth(WP_REST_Request $request): bool|WP_Error {
         $token = KSTCangar_JWT::get_token_from_header();
@@ -183,13 +191,6 @@ class KSTCangar_API {
         return true;
     }
 
-    // ══════════════════════════════════════════════════════
-    // AUTH ENDPOINTS
-    // ══════════════════════════════════════════════════════
-
-    /**
-     * POST /auth/login
-     */
     public static function login(WP_REST_Request $request): WP_REST_Response {
         $body     = $request->get_json_params();
         $username = sanitize_text_field($body['username'] ?? $request->get_param('username') ?? '');
@@ -209,7 +210,6 @@ class KSTCangar_API {
             return self::err(403, 'Akun tidak memiliki akses ke sistem ini.');
         }
 
-        // Ambil role KST
         $kst_roles = ['administrator','admin_kst','operator_stok','operator_booking','operator_keuangan','manajemen'];
         $user_role = 'publik';
         foreach ($user->roles as $role) {
@@ -219,7 +219,6 @@ class KSTCangar_API {
             }
         }
 
-        // Generate access token (8 jam)
         $exp = time() + 28800;
         $access_token = KSTCangar_JWT::generate([
             'sub'      => (string)$user->ID,
@@ -230,13 +229,11 @@ class KSTCangar_API {
             'aud'      => get_site_url(),
         ], 28800);
 
-        // Generate refresh token (7 hari) — simpan hash di user meta
         $refresh_token     = bin2hex(random_bytes(32));
         $refresh_token_hash = hash('sha256', $refresh_token);
         update_user_meta($user->ID, 'kstcangar_refresh_token', $refresh_token_hash);
         update_user_meta($user->ID, 'kstcangar_refresh_exp',   time() + 604800);
 
-        // Set refresh token di HTTP-only cookie
         setcookie('refresh_token', $refresh_token, [
             'expires'  => time() + 604800,
             'path'     => '/wp-json/kstcangar/v1/auth/refresh',
@@ -259,10 +256,6 @@ class KSTCangar_API {
         return $response;
     }
 
-        /**
-     * GET /auth/me
-     * Cek token aktif & info user yang sedang login
-     */
     public static function me(WP_REST_Request $request): WP_REST_Response {
         $payload = $request->get_param('_jwt_payload');
 
@@ -276,9 +269,6 @@ class KSTCangar_API {
         ]);
     }
 
-    /**
-     * POST /auth/logout
-     */
     public static function logout(WP_REST_Request $request): WP_REST_Response {
         $refresh_token = $_COOKIE['refresh_token'] ?? '';
 
@@ -289,11 +279,9 @@ class KSTCangar_API {
         $payload = $request->get_param('_jwt_payload');
         $user_id = $payload['sub'] ?? 0;
 
-        // Hapus refresh token dari user meta
         delete_user_meta($user_id, 'kstcangar_refresh_token');
         delete_user_meta($user_id, 'kstcangar_refresh_exp');
 
-        // Hapus cookie
         setcookie('refresh_token', '', [
             'expires'  => time() - 3600,
             'path'     => '/wp-json/kstcangar/v1/auth/refresh',
@@ -305,9 +293,6 @@ class KSTCangar_API {
         return self::ok([]);
     }
 
-    /**
-     * POST /auth/refresh
-     */
     public static function refresh_token(WP_REST_Request $request): WP_REST_Response {
         $refresh_token = $_COOKIE['refresh_token'] ?? '';
 
@@ -317,7 +302,6 @@ class KSTCangar_API {
 
         $refresh_hash = hash('sha256', $refresh_token);
 
-        // Cari user berdasarkan refresh token
         $users = get_users(['meta_key' => 'kstcangar_refresh_token', 'meta_value' => $refresh_hash]);
 
         if (empty($users)) {
@@ -333,14 +317,12 @@ class KSTCangar_API {
             return self::err(401, 'Refresh token sudah kadaluwarsa. Silakan login kembali.');
         }
 
-        // Ambil role
         $kst_roles = ['administrator','admin_kst','operator_stok','operator_booking','operator_keuangan','manajemen'];
         $user_role = 'publik';
         foreach ($user->roles as $role) {
             if (in_array($role, $kst_roles)) { $user_role = $role; break; }
         }
 
-        // Generate access token baru
         $exp = time() + 28800;
         $access_token = KSTCangar_JWT::generate([
             'sub'      => (string)$user->ID,
@@ -363,14 +345,9 @@ class KSTCangar_API {
         ]);
     }
 
-    // ══════════════════════════════════════════════════════
-    // HEALTH CHECK
-    // ══════════════════════════════════════════════════════
-
     public static function health_check(WP_REST_Request $request): WP_REST_Response {
         global $wpdb;
 
-        // Cek koneksi DB
         $db_ok = $wpdb->get_var('SELECT 1') === '1';
 
         if (!$db_ok) {
@@ -384,21 +361,11 @@ class KSTCangar_API {
         return self::ok(['status' => 'ok']);
     }
 
-    // ══════════════════════════════════════════════════════
-    // CONTRACT ENDPOINT
-    // ══════════════════════════════════════════════════════
-
-    /**
-     * GET /contract
-     * Mengembalikan kontrak data KST Cangar sesuai role user.
-     */
     public static function get_contract(WP_REST_Request $request): WP_REST_Response {
         $role       = $request->get_param('_jwt_role') ?? 'publik';
         $permission = sanitize_text_field($request->get_param('permission') ?? 'r');
 
-        // Semua data yang tersedia di KST Cangar
         $all_data = [
-            // Booking
             [
                 'name'        => 'Data Booking',
                 'path'        => '/data/booking',
@@ -435,7 +402,6 @@ class KSTCangar_API {
                 ],
             ],
 
-            // Keuangan
             [
                 'name'        => 'Transaksi Keuangan',
                 'path'        => '/data/keuangan',
@@ -471,7 +437,6 @@ class KSTCangar_API {
                 ],
             ],
 
-            // Rekap keuangan bulanan (time series)
             [
                 'name'        => 'Rekap Keuangan Bulanan',
                 'path'        => '/data/keuangan/rekap',
@@ -485,7 +450,6 @@ class KSTCangar_API {
                 'dataType' => ['typeName' => 'timeSeries', 'unit' => 'IDR'],
             ],
 
-            // Stok opname
             [
                 'name'        => 'Stok Opname',
                 'path'        => '/data/stok',
@@ -518,7 +482,6 @@ class KSTCangar_API {
                 ],
             ],
 
-            // Summary dashboard
             [
                 'name'        => 'Ringkasan Dashboard',
                 'path'        => '/data/summary',
@@ -531,7 +494,6 @@ class KSTCangar_API {
             ],
         ];
 
-        // Filter berdasarkan permission query param
         if ($permission === 'rw') {
             $all_data = array_filter($all_data, fn($d) =>
                 in_array('read', $d['operations']) && in_array('write', $d['operations'])
@@ -544,9 +506,6 @@ class KSTCangar_API {
         ]);
     }
 
-    /**
-     * Tentukan operasi yang diizinkan berdasarkan role dan modul.
-     */
     private static function get_operations(string $role, string $module): array {
         $write_roles = ['administrator', 'admin_kst', "operator_$module"];
 
@@ -554,10 +513,6 @@ class KSTCangar_API {
             ? ['read', 'write']
             : ['read'];
     }
-
-    // ══════════════════════════════════════════════════════
-    // DATA ENDPOINTS
-    // ══════════════════════════════════════════════════════
 
     public static function get_booking(WP_REST_Request $request): WP_REST_Response {
         global $wpdb;
@@ -585,7 +540,6 @@ class KSTCangar_API {
         $params_paginated = array_merge($params, [$limit, $offset]);
         $rows = $wpdb->get_results($wpdb->prepare($query, ...$params_paginated));
 
-        // Format sebagai table sesuai kontrak
         $items = array_map(fn($row) => [
             'rowId'     => (string)$row->booking_id,
             'createdAt' => $row->created_at,
@@ -675,7 +629,6 @@ class KSTCangar_API {
             GROUP BY date ORDER BY date ASC
         ", $month));
 
-        // Format sebagai timeSeries — net per hari
         $values = array_map(fn($row) => [
             'timestamp' => $row->date . 'T00:00:00+07:00',
             'value'     => (float)$row->income - (float)$row->expense,
@@ -792,14 +745,280 @@ class KSTCangar_API {
         ]));
     }
 
-    // ══════════════════════════════════════════════════════
-    // QUERY AGREGAT
-    // ══════════════════════════════════════════════════════
+    public static function create_stok(WP_REST_Request $request): WP_REST_Response {
+        global $wpdb;
 
-    /**
-     * POST /query
-     * Batch query multiple data dalam satu request.
-     */
+        $body = $request->get_json_params();
+        $user_id = (int)($request->get_param('_jwt_user_id') ?? 0);
+
+        $nama_barang  = sanitize_text_field($body['nama_barang'] ?? '');
+        $satuan       = sanitize_text_field($body['satuan'] ?? 'pcs');
+        $stok_awal    = (int)($body['stok_awal'] ?? 0);
+        $total_masuk  = (int)($body['total_masuk'] ?? 0);
+        $total_keluar = (int)($body['total_keluar'] ?? 0);
+        $retur        = (int)($body['retur'] ?? 0);
+        $stok_fisik   = (int)($body['stok_fisik'] ?? 0);
+
+        if (!$nama_barang || !$satuan) {
+            return self::err(400, 'Nama barang dan satuan wajib diisi.');
+        }
+
+        $item = $wpdb->get_row($wpdb->prepare(
+            "SELECT item_id FROM {$wpdb->prefix}kst_items WHERE name = %s AND is_active = 1",
+            $nama_barang
+        ));
+
+        if (!$item) {
+            $wpdb->insert($wpdb->prefix . 'kst_items', [
+                'name' => $nama_barang,
+                'unit' => $satuan,
+            ]);
+            $item_id = $wpdb->insert_id;
+        } else {
+            $item_id = (int)$item->item_id;
+        }
+
+        $week         = KSTCangar_Helpers::get_week();
+        $system_stock = $stok_awal + $total_masuk - $total_keluar + $retur;
+        $difference   = $system_stock - $stok_fisik;
+
+        $data = [
+            'item_id'        => $item_id,
+            'week'           => $week,
+            'initial_stock'  => $stok_awal,
+            'stock_in'       => $total_masuk,
+            'stock_out'      => $total_keluar,
+            'stock_return'   => $retur,
+            'system_stock'   => $system_stock,
+            'physical_stock' => $stok_fisik,
+            'difference'     => $difference,
+            'note'           => sanitize_text_field($body['ket_selisih'] ?? ''),
+            'status'         => 'draft',
+            'created_by'     => $user_id ?: get_current_user_id(),
+        ];
+
+        $existing = $wpdb->get_var($wpdb->prepare(
+            "SELECT opname_id FROM {$wpdb->prefix}kst_stock_opname WHERE item_id = %d AND week = %s",
+            $item_id, $week
+        ));
+
+        if ($existing) {
+            $wpdb->update($wpdb->prefix . 'kst_stock_opname', $data, ['opname_id' => $existing]);
+            $opname_id = (int)$existing;
+        } else {
+            $wpdb->insert($wpdb->prefix . 'kst_stock_opname', $data);
+            $opname_id = $wpdb->insert_id;
+        }
+
+        return self::ok([
+            'message'  => 'Data stok berhasil disimpan.',
+            'opnameId' => (string)$opname_id,
+        ], 201);
+    }
+
+    public static function update_stok(WP_REST_Request $request): WP_REST_Response {
+        global $wpdb;
+
+        $opname_id = (int)$request->get_param('id');
+        $body      = $request->get_json_params();
+
+        $existing = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}kst_stock_opname WHERE opname_id = %d",
+            $opname_id
+        ));
+
+        if (!$existing) {
+            return self::err(404, 'Data stok tidak ditemukan.');
+        }
+
+        $stok_awal    = (int)($body['stok_awal'] ?? $existing->initial_stock);
+        $total_masuk  = (int)($body['total_masuk'] ?? $existing->stock_in);
+        $total_keluar = (int)($body['total_keluar'] ?? $existing->stock_out);
+        $retur        = (int)($body['retur'] ?? $existing->stock_return);
+        $stok_fisik   = (int)($body['stok_fisik'] ?? $existing->physical_stock);
+        $system_stock = $stok_awal + $total_masuk - $total_keluar + $retur;
+        $difference   = $system_stock - $stok_fisik;
+
+        $data = [
+            'initial_stock'  => $stok_awal,
+            'stock_in'       => $total_masuk,
+            'stock_out'      => $total_keluar,
+            'stock_return'   => $retur,
+            'system_stock'   => $system_stock,
+            'physical_stock' => $stok_fisik,
+            'difference'     => $difference,
+            'note'           => sanitize_text_field($body['ket_selisih'] ?? $existing->note ?? ''),
+        ];
+
+        $nama_barang = sanitize_text_field($body['nama_barang'] ?? '');
+        $satuan      = sanitize_text_field($body['satuan'] ?? '');
+        if ($nama_barang || $satuan) {
+            $item_update = [];
+            if ($nama_barang) $item_update['name'] = $nama_barang;
+            if ($satuan)      $item_update['unit'] = $satuan;
+            $wpdb->update($wpdb->prefix . 'kst_items', $item_update, ['item_id' => $existing->item_id]);
+        }
+
+        $wpdb->update($wpdb->prefix . 'kst_stock_opname', $data, ['opname_id' => $opname_id]);
+
+        return self::ok(['message' => 'Data stok berhasil diperbarui.']);
+    }
+
+    public static function delete_stok(WP_REST_Request $request): WP_REST_Response {
+        global $wpdb;
+
+        $opname_id = (int)$request->get_param('id');
+
+        $existing = $wpdb->get_row($wpdb->prepare(
+            "SELECT opname_id FROM {$wpdb->prefix}kst_stock_opname WHERE opname_id = %d",
+            $opname_id
+        ));
+
+        if (!$existing) {
+            return self::err(404, 'Data stok tidak ditemukan.');
+        }
+
+        $wpdb->delete($wpdb->prefix . 'kst_stock_opname', ['opname_id' => $opname_id]);
+
+        return self::ok(['message' => 'Data stok berhasil dihapus.']);
+    }
+
+    public static function create_booking(WP_REST_Request $request): WP_REST_Response {
+        global $wpdb;
+
+        $body    = $request->get_json_params();
+        $user_id = (int)($request->get_param('_jwt_user_id') ?? 0);
+
+        $customer_name  = sanitize_text_field($body['nama_customer'] ?? '');
+        $customer_phone = sanitize_text_field($body['no_hp'] ?? '');
+        $service_type   = sanitize_text_field($body['layanan'] ?? '');
+        $date           = sanitize_text_field($body['tanggal_checkin'] ?? '');
+        $quantity       = max(1, (int)($body['jumlah_tamu'] ?? 1));
+        $status         = sanitize_text_field($body['status_bayar'] ?? 'pending');
+        $notes          = sanitize_textarea_field($body['additional_needs'] ?? '');
+
+        if (!$customer_name || !$date || !$service_type) {
+            return self::err(400, 'Nama customer, tanggal, dan jenis layanan wajib diisi.');
+        }
+
+        $service_map = [
+            'glamping deluxe' => 'glamping',
+            'glamping long'   => 'glamping',
+            'camping ground'  => 'camping',
+            'glamping'        => 'glamping',
+            'cafe'            => 'cafe',
+            'camping'         => 'camping',
+        ];
+        $service_normalized = $service_map[strtolower($service_type)] ?? 'glamping';
+
+        $status_map = [
+            'lunas'       => 'confirmed',
+            'confirmed'   => 'confirmed',
+            'belum lunas' => 'pending',
+            'pending'     => 'pending',
+            'dp'          => 'pending',
+            'batal'       => 'cancelled',
+            'cancelled'   => 'cancelled',
+        ];
+        $status_normalized = $status_map[strtolower($status)] ?? 'pending';
+
+        $data = [
+            'service_type'   => $service_normalized,
+            'customer_name'  => $customer_name,
+            'customer_phone' => $customer_phone,
+            'date'           => $date,
+            'quantity'       => $quantity,
+            'status'         => $status_normalized,
+            'notes'          => $notes,
+            'created_by'     => $user_id ?: get_current_user_id(),
+        ];
+
+        $wpdb->insert($wpdb->prefix . 'kst_bookings', $data);
+        $booking_id = $wpdb->insert_id;
+
+        if (!$booking_id) {
+            return self::err(500, 'Gagal menyimpan booking: ' . $wpdb->last_error);
+        }
+
+        return self::ok([
+            'message'   => 'Booking berhasil disimpan.',
+            'bookingId' => (string)$booking_id,
+        ], 201);
+    }
+
+    public static function update_booking(WP_REST_Request $request): WP_REST_Response {
+        global $wpdb;
+
+        $booking_id = (int)$request->get_param('id');
+        $body       = $request->get_json_params();
+
+        $existing = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}kst_bookings WHERE booking_id = %d",
+            $booking_id
+        ));
+
+        if (!$existing) {
+            return self::err(404, 'Booking tidak ditemukan.');
+        }
+
+        $service_type = sanitize_text_field($body['layanan'] ?? $existing->service_type);
+        $status       = sanitize_text_field($body['status_bayar'] ?? $existing->status);
+
+        $service_map = [
+            'glamping deluxe' => 'glamping',
+            'glamping long'   => 'glamping',
+            'camping ground'  => 'camping',
+            'glamping'        => 'glamping',
+            'cafe'            => 'cafe',
+            'camping'         => 'camping',
+        ];
+        $service_normalized = $service_map[strtolower($service_type)] ?? $existing->service_type;
+
+        $status_map = [
+            'lunas'       => 'confirmed',
+            'confirmed'   => 'confirmed',
+            'belum lunas' => 'pending',
+            'pending'     => 'pending',
+            'dp'          => 'pending',
+            'batal'       => 'cancelled',
+            'cancelled'   => 'cancelled',
+        ];
+        $status_normalized = $status_map[strtolower($status)] ?? $existing->status;
+
+        $data = [
+            'customer_name'  => sanitize_text_field($body['nama_customer'] ?? $existing->customer_name),
+            'customer_phone' => sanitize_text_field($body['no_hp'] ?? $existing->customer_phone),
+            'service_type'   => $service_normalized,
+            'date'           => sanitize_text_field($body['tanggal_checkin'] ?? $existing->date),
+            'quantity'       => max(1, (int)($body['jumlah_tamu'] ?? $existing->quantity)),
+            'status'         => $status_normalized,
+            'notes'          => sanitize_textarea_field($body['additional_needs'] ?? $existing->notes ?? ''),
+        ];
+
+        $wpdb->update($wpdb->prefix . 'kst_bookings', $data, ['booking_id' => $booking_id]);
+
+        return self::ok(['message' => 'Booking berhasil diperbarui.']);
+    }
+
+    public static function delete_booking(WP_REST_Request $request): WP_REST_Response {
+        global $wpdb;
+
+        $booking_id = (int)$request->get_param('id');
+
+        $existing = $wpdb->get_row($wpdb->prepare(
+            "SELECT booking_id FROM {$wpdb->prefix}kst_bookings WHERE booking_id = %d",
+            $booking_id
+        ));
+
+        if (!$existing) {
+            return self::err(404, 'Booking tidak ditemukan.');
+        }
+
+        $wpdb->delete($wpdb->prefix . 'kst_bookings', ['booking_id' => $booking_id]);
+
+        return self::ok(['message' => 'Booking berhasil dihapus.']);
+    }
+
     public static function query(WP_REST_Request $request): WP_REST_Response {
         $body    = $request->get_json_params();
         $queries = $body['queries'] ?? [];
@@ -812,7 +1031,6 @@ class KSTCangar_API {
             return self::err(413, 'Maksimal 80 query per request.');
         }
 
-        // Map code → endpoint handler
         $code_map = [
             '1f0c9d2a-0001-6d7e-8f90-kstcangar0001' => 'get_booking',
             '1f0c9d2a-0002-6d7e-8f90-kstcangar0002' => 'get_keuangan',
@@ -838,12 +1056,10 @@ class KSTCangar_API {
                 continue;
             }
 
-            // Buat sub-request dengan params dari query
             $sub_request = new WP_REST_Request('GET');
             foreach ($params as $key => $value) {
                 $sub_request->set_param($key, $value);
             }
-            // Teruskan JWT payload
             $sub_request->set_param('_jwt_payload', $request->get_param('_jwt_payload'));
             $sub_request->set_param('_jwt_role',    $request->get_param('_jwt_role'));
 

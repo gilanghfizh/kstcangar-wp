@@ -1,8 +1,4 @@
-
 # BEGIN WordPress
-# The directives (lines) between "BEGIN WordPress" and "END WordPress" are
-# dynamically generated, and should only be modified via WordPress filters.
-# Any changes to the directives between these markers will be overwritten.
 <IfModule mod_rewrite.c>
 RewriteEngine On
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
@@ -10,7 +6,11 @@ RewriteBase /kstcangar-wp/wordpress/
 RewriteRule ^index\.php$ - [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /kstcangar-wp/wordpress/index.php [L]
+RewriteRule . /kstcangar-wp/wordpress/index.php [L,QSA]
 </IfModule>
-
 # END WordPress
+
+<IfModule mod_headers.c>
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Authorization, Content-Type, X-HTTP-Method-Override"
+</IfModule>
