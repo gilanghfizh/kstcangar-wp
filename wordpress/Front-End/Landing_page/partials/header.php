@@ -16,7 +16,7 @@
 
     <nav class="nav-menu">
       <a href="#tentang">Tentang</a>
-      <a href="#umkm">UMKM</a>
+      <a href="#umkm">Fasilitas</a>
       <a href="#lokasi">Lokasi</a>
       <a href="#faq">FAQ</a>
     </nav>

@@ -25,8 +25,7 @@
         <summary>Apa itu Sistem Informasi Terintegrasi KST Cangar?</summary>
 
         <p>
-          Platform digital untuk pengelolaan riset hortikultura,
-          wisata edukasi, monitoring lingkungan, dan UMKM lokal.
+          Platform digital untuk branding, promosi, dan pengelolaan ekowisata KST Cangar
         </p>
       </details>
 

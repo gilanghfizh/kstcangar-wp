@@ -9,15 +9,12 @@
         <img src="https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=1200&auto=format&fit=crop">
       </div>
       <div class="about-text">
-        <h3>Latar Belakang & Konteks</h3>
+        <h3>Tentang Kami</h3>
         <p>
-          Cangar terletak di kawasan pegunungan yang memiliki potensi objek daya tarik wisata (ODTW) dengan klasifikasi "Sangat Baik". Kawasan ini menawarkan udara sejuk, pemandian air Panas
-          alami, dan vegetasi yang masih asri.
+          Agrotechno Park Cangar merupakan Kawasan Sains Teknologi (KST) yang dikembangkan dalam kerangka program DIKST Universitas Brawijaya sebagai pusat integrasi riset, inovasi, hilirisasi teknologi, dan eduwisata berbasis pertanian berkelanjutan.
         </p>
         <p>
-          Saat ini, pengembangan pariwisata di Kota Batu masih didominasi oleh objek wisata artifisial yang berpotensi memicu kerusakan lingkungan. KST Cangar
-          hadir sebagai alternatif model wisata berkelanjutan yang berbasis pada riset, edukasi, dan pelestarian lingkungan
-        </p>
+          KST Cangar tidak hanya berfungsi sebagai lahan produksi, tetapi sebagai laboratorium hidup (living laboratory) yang menghubungkan akademisi, industri, mahasiswa, petani, dan masyarakat dalam satu sistem inovasi yang aplikatif dan bernilai ekonomi.
       </div>
     </div>
   </div>

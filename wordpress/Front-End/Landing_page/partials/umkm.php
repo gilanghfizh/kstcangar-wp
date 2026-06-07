@@ -4,11 +4,11 @@
   <div class="container">
 
     <span class="section-mini-title center">
-      UMKM MITRA CBE
+      Fasilitas KST Cangar
     </span>
 
     <h2 class="section-title center dark-title">
-      Produk & Layanan UMKM Lokal
+      Fasilitas
     </h2>
 
     <div class="umkm-grid">
@@ -18,26 +18,18 @@
 
         <div class="umkm-image">
           🏪
-          <span class="badge">Menu Favorit</span>
+          <span class="badge">Penginapan</span>
         </div>
 
         <div class="umkm-content">
 
-          <div class="umkm-category">Kuliner</div>
-
           <div class="umkm-title-rating">
-            <h4>Warung Mbak Siti</h4>
-            <span>⭐ 4.8</span>
+            <h4>Glamping</h4>
           </div>
 
           <p>
-            Soto ayam kampung dan nasi pecel khas Cangar.
+            Healing nyaman tanpa ribet! Nikmati sensasi menginap di alam dengan fasilitas lengkap di Glamping KST Cangar.
           </p>
-
-          <div class="umkm-footer">
-            <strong>Rp 15.000 - 35.000</strong>
-            <a href="#">Info →</a>
-          </div>
 
         </div>
 
@@ -48,26 +40,18 @@
 
         <div class="umkm-image">
           🏪
-          <span class="badge">Best Seller</span>
+          <span class="badge">Penginapan</span>
         </div>
 
         <div class="umkm-content">
 
-          <div class="umkm-category">Kuliner</div>
-
           <div class="umkm-title-rating">
-            <h4>Kopi Lereng Welirang</h4>
-            <span>⭐ 4.9</span>
+            <h4>Camping Ground</h4>
           </div>
 
           <p>
-            Kopi arabika lokal dari kebun petani Cangar.
+            Lahan perkemahan yang siap jadi tempat seru untuk camping bareng teman, keluarga, atau komunitas.
           </p>
-
-          <div class="umkm-footer">
-            <strong>Rp 20.000 - 45.000</strong>
-            <a href="#">Info →</a>
-          </div>
 
         </div>
 
@@ -78,26 +62,40 @@
 
         <div class="umkm-image">
           🏪
-          <span class="badge">Produk Segar</span>
+          <span class="badge">Kuliner</span>
         </div>
 
         <div class="umkm-content">
 
-          <div class="umkm-category">Pertanian</div>
-
           <div class="umkm-title-rating">
-            <h4>Sayur Organik Pak Budi</h4>
-            <span>⭐ 4.7</span>
+            <h4>Cafe</h4>
           </div>
 
           <p>
-            Sayuran organik segar langsung dari petani lokal.
+            Siap nemenin waktu santaimu dengan berbagai menu makanan & minuman. Dari yang hangat sampai yang segar, semuanya cocok dinikmati di KST Cangar.
           </p>
 
-          <div class="umkm-footer">
-            <strong>Rp 10.000 - 25.000/kg</strong>
-            <a href="#">Info →</a>
+        </div>
+
+      </div>
+
+      <!-- CARD -->
+      <div class="umkm-card">
+
+        <div class="umkm-image">
+          🏪
+          <span class="badge">Pertanian</span>
+        </div>
+
+        <div class="umkm-content">
+
+          <div class="umkm-title-rating">
+            <h4>Pertanian Kentang & Wortel</h4>
           </div>
+
+          <p>
+            Berbagai tanaman hortikultura seperti sayur dan buah segar yang dikelola langsung di KST Cangar.
+          </p>
 
         </div>
 

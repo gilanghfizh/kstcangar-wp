@@ -9,7 +9,7 @@
         Transformasi Menuju Ekowisata Terukur
       </h2>
       <p class="impact-text">
-        Sistem informasi terintegrasi KST Cangar memberikan dampak nyata dalam pengembangan ekowisata Berkelanjutan
+        Sistem informasi terintegrasi KST Cangar memberikan dampak nyata dalam pengembangan ekowisata berkelanjutan
         berbasis teknologi (CBE) yang terukur dan transparan.
       </p>
     </div>
