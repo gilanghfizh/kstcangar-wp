@@ -1,0 +1,108 @@
+/* =========================
+   LOCATION
+========================= */
+
+.location-grid{
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  gap:30px;
+  margin:50px 0 40px;
+}
+
+.map-wrapper{
+  position:relative;
+  border-radius:24px;
+  overflow:hidden;
+  min-height:500px;
+}
+
+.map-wrapper iframe{
+  width:100%;
+  height:100%;
+  min-height:500px;
+  border:none;
+}
+
+.map-badge{
+  position:absolute;
+  top:20px;
+  left:20px;
+  background:#fff;
+  padding:16px 20px;
+  border-radius:14px;
+  z-index:10;
+}
+
+.location-info{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
+.info-card{
+  background:#fff;
+  border:1px solid #e5e5e5;
+  border-radius:18px;
+  padding:24px;
+  display:flex;
+  gap:18px;
+}
+
+.info-icon{
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  background:#e9f7ef;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.detail-location-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:30px;
+}
+
+.route-card,
+.nearby-card{
+  background:#fff;
+  border-radius:22px;
+  padding:35px;
+  border:1px solid #eee;
+}
+
+.card-title{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:30px;
+}
+
+.nearby-item{
+  display:flex;
+  justify-content:space-between;
+  padding:20px 0;
+  border-bottom:1px solid #f1f1f1;
+}
+
+.maps-button{
+  display:inline-block;
+  background:#0d944b;
+  color:#fff;
+  padding:16px 28px;
+  border-radius:999px;
+  margin-top:40px;
+}
+
+.map-button-wrapper{
+  text-align:center;
+}
+
+/* Responsive - Location */
+@media(max-width:1100px){
+  .location-grid,
+  .detail-location-grid{
+    grid-template-columns:1fr;
+  }
+}

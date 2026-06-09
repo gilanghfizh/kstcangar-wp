@@ -1,10 +1,10 @@
-<?php
 /**
  * Plugin Name: KST Cangar Backoffice
  * Description: Sistem manajemen backoffice KST Cangar — Stok Opname, Booking, Keuangan, dan REST API dengan JWT.
  * Version: 1.4.0
  * Author: Kelompok 3 - Universitas Brawijaya
  */
+<?php
 
 defined('ABSPATH') || exit;
 
@@ -15,7 +15,7 @@ define('KSTCANGAR_URL',  plugin_dir_url(__FILE__));
 require_once KSTCANGAR_PATH . 'includes/class-database.php';
 require_once KSTCANGAR_PATH . 'includes/class-roles.php';
 require_once KSTCANGAR_PATH . 'includes/class-helpers.php';
-require_once KSTCANGAR_PATH . 'includes/class-jwt.php'; // ← tambahan
+require_once KSTCANGAR_PATH . 'includes/class-jwt.php';
 require_once KSTCANGAR_PATH . 'includes/class-api.php';
 
 // Modul
@@ -43,7 +43,25 @@ add_action('init', function () {
 
 KSTCangar_API::register();
 
-// ── Admin Menu ────────────────────────────────────────────
+add_filter('rest_pre_dispatch', function ($result, $server, $request) {
+    if ($result !== null) return $result;
+
+    $override = $request->get_header('x_http_method_override');
+    if ($override && in_array(strtoupper($override), ['PUT', 'DELETE', 'PATCH'])) {
+        $request->set_method(strtoupper($override));
+    }
+
+    return $result;
+}, 10, 3);
+
+add_action('init', function () {
+    $flushed = get_option('kstcangar_routes_flushed', '0');
+    if ($flushed !== '1.4.1') {
+        flush_rewrite_rules();
+        update_option('kstcangar_routes_flushed', '1.4.1');
+    }
+}, 99);
+
 add_action('admin_menu', function () {
 
     add_menu_page(
