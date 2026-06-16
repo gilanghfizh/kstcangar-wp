@@ -1,29 +1,26 @@
+<?php
 /**
  * Plugin Name: KST Cangar Backoffice
  * Description: Sistem manajemen backoffice KST Cangar — Stok Opname, Booking, Keuangan, dan REST API dengan JWT.
  * Version: 1.4.0
  * Author: Kelompok 3 - Universitas Brawijaya
  */
-<?php
 
 defined('ABSPATH') || exit;
 
 define('KSTCANGAR_PATH', plugin_dir_path(__FILE__));
 define('KSTCANGAR_URL',  plugin_dir_url(__FILE__));
 
-// Includes
 require_once KSTCANGAR_PATH . 'includes/class-database.php';
 require_once KSTCANGAR_PATH . 'includes/class-roles.php';
 require_once KSTCANGAR_PATH . 'includes/class-helpers.php';
 require_once KSTCANGAR_PATH . 'includes/class-jwt.php';
 require_once KSTCANGAR_PATH . 'includes/class-api.php';
 
-// Modul
 require_once KSTCANGAR_PATH . 'modules/stok/class-stok.php';
 require_once KSTCANGAR_PATH . 'modules/booking/class-booking.php';
 require_once KSTCANGAR_PATH . 'modules/keuangan/class-keuangan.php';
 
-// ── Aktivasi & Deaktivasi ─────────────────────────────────
 register_activation_hook(__FILE__, function () {
     KSTCangar_Database::create_tables();
     KSTCangar_Roles::setup();
@@ -34,7 +31,6 @@ register_deactivation_hook(__FILE__, function () {
     flush_rewrite_rules();
 });
 
-// ── Init ──────────────────────────────────────────────────
 add_action('init', function () {
     new KSTCangar_Stok();
     new KSTCangar_Booking();
@@ -107,7 +103,6 @@ add_action('admin_menu', function () {
         'kstcangar_keuangan', 'kstcangar-keuangan', ['KSTCangar_Keuangan', 'render_page']);
 });
 
-// ── Assets ────────────────────────────────────────────────
 add_action('admin_enqueue_scripts', function ($hook) {
     if (strpos($hook, 'kstcangar') === false) return;
     wp_enqueue_style('kstcangar-admin', KSTCANGAR_URL . 'assets/css/admin.css', [], '1.4.0');

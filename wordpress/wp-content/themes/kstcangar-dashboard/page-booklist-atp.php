@@ -1,4 +1,7 @@
 <?php
+/*
+ * Template Name: Booking List
+ */
 
 if (!is_user_logged_in()) {
     wp_redirect(wp_login_url(get_permalink()));
@@ -146,7 +149,7 @@ $current_user = wp_get_current_user();
             <div class="so-form-grid-2">
                 <div class="so-field">
                     <label>No WhatsApp <span class="req">*</span></label>
-                    <input type="text" id="b-wa" placeholder="08xxxxxxxxxx">
+                    <input type="number" id="b-wa" placeholder="08xxxxxxxxxx">
                 </div>
                 <div class="so-field">
                     <label>Tipe <span class="req">*</span></label>
@@ -278,14 +281,33 @@ $current_user = wp_get_current_user();
             </table>
         </div>
 
+        <div id="buktiModal" class="modal-bukti">
+            <div class="modal-bukti-content">
+
+                <span class="modal-close"
+                    onclick="tutupBukti()">
+                &times;
+                </span>
+
+                <iframe
+                id="buktiFrame"
+                style="
+                    width:100%;
+                    height:80vh;
+                    border:none;
+                ">
+                </iframe>
+
+            </div>
+            </div>
+
     </main>
 </div>
 
 <script>
 const unitOptions = {
-  "Glamping Deluxe": ["Deluxe 1","Deluxe 2","Deluxe 3","Deluxe 4","Deluxe 5"],
-  "Glamping Long":   ["Long Unit 8","Long Unit 9","Long Unit 10","Long Unit 11"],
-  "Camping Ground":  ["Camping Ground Atas","Camping Ground Bawah"],
+  "Glamping Deluxe": ["Deluxe 1","Deluxe 2","Deluxe 3","Deluxe 4","Deluxe 5", "Deluxe 6", "Deluxe 7"],
+  "Glamping Long":   ["Long Unit 8","Long Unit 9","Long Unit 10"],
 };
 
 function toggleDropdown(dropId, wrapId) {

@@ -710,3 +710,27 @@ body.admin-bar .dashboard-layout { padding-top: calc(64px + 32px); }
     .so-stats-grid { grid-template-columns: 1fr; }
     .top-actions .nav-btn:first-child { display: none; }
 }
+
+.modal-bukti{
+  display:none;
+  position:fixed;
+  z-index:9999;
+  inset:0;
+  background:rgba(0,0,0,.6);
+}
+
+.modal-bukti-content{
+  background:#fff;
+  width:90%;
+  max-width:1000px;
+  margin:40px auto;
+  padding:15px;
+  border-radius:12px;
+}
+
+.modal-close{
+  float:right;
+  cursor:pointer;
+  font-size:28px;
+  font-weight:bold;
+}

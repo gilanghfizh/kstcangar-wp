@@ -1,4 +1,7 @@
 <?php
+/*
+ * Template Name: Dashboard
+ */
 
 if (!is_user_logged_in()) {
     wp_redirect(wp_login_url(get_permalink()));
@@ -100,7 +103,7 @@ $current_user = wp_get_current_user();
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
                 </div>
                 <div class="stat-badge blue-badge">Total unit</div>
-                <span>Stok Tersedia</span>
+                <span>Unit terpakai</span>
                 <h2 id="stat-stok">–</h2>
             </div>
             <div class="stat-card">

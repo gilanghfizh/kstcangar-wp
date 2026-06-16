@@ -4,7 +4,6 @@ Template Name: Login
 Template Post Type: page
 */
 
-// Jika sudah login, redirect ke dashboard
 if (is_user_logged_in()) {
     wp_redirect(get_permalink(get_page_by_path('title-dashboard')));
     exit;

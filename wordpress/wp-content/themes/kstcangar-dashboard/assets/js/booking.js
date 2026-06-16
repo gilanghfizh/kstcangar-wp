@@ -1,5 +1,7 @@
 
 let bookingData = [];
+let uploadedBuktiId = null;
+let uploadedBuktiUrl = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
   if (!localStorage.getItem("kst_access_token")) return;
@@ -25,23 +27,42 @@ async function loadBooking() {
     const items = res?.data?.items || [];
 
     bookingData = items.map((item) => {
-      const cols = colMap(item.colValues);
-      return {
-        rowId:       item.rowId ?? null,
-        nama:        cols[0] ?? "-",
-        kontak:      cols[1] ?? "-",
-        tipe:        cols[2] ?? "-",
-        checkin:     cols[3] ?? "-",
-        checkout:    "-",
-        jumlah_tamu: Number(cols[4] ?? 0),
-        status:      cols[5] ?? "-",
-        unit:        "-",
-        harga:       0,
-        bukti:       "-",
-        invoice:     "-",
-        additional:  "-",
-      };
-    });
+    const cols = colMap(item.colValues);
+
+    return {
+      rowId: item.rowId ?? null,
+
+      nama: cols[0] ?? "-",
+      kontak: cols[1] ?? "-",
+
+      tipe: cols[2] ?? "-",
+
+      checkin: cols[3] ?? "-",
+      checkout: cols[4] ?? "-",
+
+      jumlah_tamu: Number(cols[5] ?? 0),
+
+      status: cols[6] ?? "-",
+
+      unit:
+          cols[7] && cols[8]
+              ? `${cols[7]} ${cols[8]}`
+              : "-",
+
+      harga: Number(cols[9] ?? 0),
+
+      invoice: cols[10] ?? "-",
+
+      additional: cols[11] ?? "-",
+
+      bukti: cols[12] ?? "-",
+      
+      receipt: cols[13] ?? "",
+
+      alamat: cols[14] ?? ""
+
+    };
+  });
 
     renderBooking(bookingData);
     updateCards(bookingData);
@@ -119,7 +140,18 @@ function renderBooking(data) {
   <td>${item.unit}</td>
   <td>Rp ${Number(item.harga).toLocaleString("id-ID")}</td>
   <td><span class="badge ${badgeClass}">${badgeLabel}</span></td>
-  <td>${item.bukti}</td>
+  <td>
+  ${
+    item.bukti && item.bukti !== "-"
+      ? `
+        <a href="#"
+           onclick="lihatBukti('${item.bukti}'); return false;">
+          ${getFileName(item.bukti)}
+        </a>
+      `
+      : "-"
+  }
+</td>
   <td>${item.invoice}</td>
   <td>${item.additional}</td>
   <td>
@@ -153,6 +185,8 @@ function showBookingForm(mode, idx) {
     setVal("b-checkout",   item.checkout);
     setVal("b-harga",      item.harga);
     setVal("b-status",     item.status);
+    setVal("b-alamat", item.alamat);
+    setVal("b-receipt", item.receipt);
     setVal("b-invoice",    item.invoice);
     setVal("b-additional", item.additional);
 
@@ -212,15 +246,47 @@ async function simpanBooking() {
     return;
   }
 
+  let serviceType = "glamping";
+  let unitType = "";
+
+  if (tipe === "Glamping Deluxe") {
+      unitType = "deluxe";
+  }
+
+  if (tipe === "Glamping Long") {
+      unitType = "long";
+  }
+
+  const unitNumber = parseInt(
+      String(unit).replace(/\D/g, "")
+  ) || null;
+
   const payload = {
-    nama_customer: nama, no_hp: wa,
-    jumlah_tamu: Number(tamu) || 1,
-    layanan: tipe, no_unit: unit,
-    tanggal_checkin: checkin, tanggal_checkout: checkout,
-    alamat, harga: Number(harga) || 0,
-    status_bayar: status, metode_bayar: metode,
-    no_receipt: receipt, no_invoice: invoice,
-    additional_needs: additional,
+      nama_customer: nama,
+      no_hp: wa,
+
+      layanan: serviceType,
+      unit_type: unitType,
+      no_unit: unitNumber,
+
+      jumlah_tamu: Number(tamu) || 1,
+
+      tanggal_checkin: checkin,
+      tanggal_checkout: checkout,
+
+      alamat: alamat,
+
+      harga: Number(harga) || 0,
+
+      status_bayar: status,
+
+      no_receipt: receipt,
+      no_invoice: invoice,
+
+      bukti_pembayaran_id: uploadedBuktiId,
+      bukti_pembayaran_url: uploadedBuktiUrl,
+
+      additional_needs: additional
   };
 
   const editIdxVal = getVal("bEditIndex");
@@ -232,6 +298,7 @@ async function simpanBooking() {
       await apiRequest("/data/booking/" + rowId, "PUT", payload);
       alert("Booking berhasil diperbarui.");
     } else {
+      console.log(payload); //debugging
       await apiRequest("/data/booking", "POST", payload);
       alert("Booking berhasil disimpan.");
     }
@@ -263,5 +330,108 @@ function colMap(colValues) {
   if (Array.isArray(colValues)) colValues.forEach((c) => { map[c.colIdx] = c.value; });
   return map;
 }
+
+function getFileName(url) {
+  if (!url || url === "-") return "-";
+
+  try {
+    return decodeURIComponent(
+      url.split("/").pop()
+    );
+  } catch {
+    return "Lihat File";
+  }
+}
+
 function getVal(id) { const el = document.getElementById(id); return el ? el.value : ""; }
 function setVal(id, val) { const el = document.getElementById(id); if (el) el.value = val ?? ""; }
+
+async function handleFileUpload(input) {
+
+    const file = input.files[0];
+    if (!file) return;
+
+    try {
+
+        document.getElementById("b-bukti-display").value =
+            "Mengupload...";
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const token = localStorage.getItem(
+            "kst_access_token"
+        );
+
+        const response = await fetch(
+            kstConfig.baseUrl + "/data/upload-bukti",
+            {
+                method: "POST",
+                headers: {
+                    Authorization: "Bearer " + token,
+                    "X-WP-Nonce": kstConfig.nonce
+                },
+                body: formData
+            }
+        );
+
+        const result = await response.json();
+        console.log(result); //debugging
+
+        if (!response.ok) {
+            throw new Error(
+                result?.message ||
+                "Upload gagal"
+            );
+        }
+
+        uploadedBuktiId =
+            result.response.attachment_id;
+
+        uploadedBuktiUrl =
+            result.response.url;
+
+        document.getElementById(
+            "b-bukti-display"
+        ).value = file.name;
+
+    } catch (err) {
+
+        uploadedBuktiId = null;
+        uploadedBuktiUrl = null;
+
+        document.getElementById(
+            "b-bukti-display"
+        ).value = "";
+
+        alert(
+            "Upload gagal: " + err.message
+        );
+    }
+}
+
+function lihatBukti(url) {
+
+  document.getElementById("buktiFrame").src = url;
+
+  document.getElementById("buktiModal").style.display = "block";
+}
+
+function tutupBukti() {
+
+  document.getElementById("buktiFrame").src = "";
+
+  document.getElementById("buktiModal").style.display = "none";
+}
+
+function getFileName(url) {
+  if (!url || url === "-") return "-";
+
+  try {
+    return decodeURIComponent(
+      url.split("/").pop()
+    );
+  } catch {
+    return "Lihat File";
+  }
+}

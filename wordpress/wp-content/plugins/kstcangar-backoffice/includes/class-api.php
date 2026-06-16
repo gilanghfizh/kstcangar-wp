@@ -77,6 +77,14 @@ class KSTCangar_API {
             ],
         ]);
 
+        register_rest_route($namespace, '/data/upload-bukti', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [self::class, 'upload_bukti'],
+                'permission_callback' => [self::class, 'check_auth'],
+            ],
+        ]);
+
         register_rest_route($namespace, '/data/keuangan', [
             'methods'             => 'GET',
             'callback'            => [self::class, 'get_keuangan'],
@@ -524,6 +532,8 @@ class KSTCangar_API {
         $offset       = max(0, (int)($request->get_param('offset') ?? 0));
         $limit        = min(50, max(1, (int)($request->get_param('limit') ?? 15)));
 
+        
+
         $where = ['1=1']; $params = [];
         if ($status)       { $where[] = 'status = %s';                        $params[] = $status; }
         if ($service_type) { $where[] = 'service_type = %s';                  $params[] = $service_type; }
@@ -540,17 +550,36 @@ class KSTCangar_API {
         $params_paginated = array_merge($params, [$limit, $offset]);
         $rows = $wpdb->get_results($wpdb->prepare($query, ...$params_paginated));
 
+        
+
         $items = array_map(fn($row) => [
             'rowId'     => (string)$row->booking_id,
             'createdAt' => $row->created_at,
             'updatedAt' => null,
             'colValues' => [
-                ['colIdx' => 0, 'value' => $row->customer_name],
-                ['colIdx' => 1, 'value' => $row->customer_phone],
-                ['colIdx' => 2, 'value' => $row->service_type],
+
+                ['colIdx' => 0,  'value' => $row->customer_name],
+                ['colIdx' => 1,  'value' => $row->customer_phone],
+
+                ['colIdx' => 2,  'value' => $row->service_type],
+
                 ['colIdx' => 3, 'value' => $row->date],
-                ['colIdx' => 4, 'value' => (int)$row->quantity],
-                ['colIdx' => 5, 'value' => $row->status],
+                ['colIdx' => 4,  'value' => $row->checkout_date],
+
+                ['colIdx' => 5,  'value' => (int)$row->quantity],
+
+                ['colIdx' => 6,  'value' => $row->status],
+
+                ['colIdx'=>7,'value'=>$row->unit_type],
+                ['colIdx'=>8,'value'=>$row->unit_number],
+                ['colIdx'=>9,'value'=>$row->harga],
+                ['colIdx'=>10,'value'=>$row->no_invoice],
+                ['colIdx'=>11,'value'=>$row->notes],
+
+                ['colIdx' => 12, 'value' => $row->bukti_pembayaran_url],
+
+                ['colIdx' => 13, 'value' => $row->no_receipt],
+                ['colIdx' => 14, 'value' => $row->alamat],
             ],
         ], $rows);
 
@@ -896,6 +925,14 @@ class KSTCangar_API {
         $quantity       = max(1, (int)($body['jumlah_tamu'] ?? 1));
         $status         = sanitize_text_field($body['status_bayar'] ?? 'pending');
         $notes          = sanitize_textarea_field($body['additional_needs'] ?? '');
+        
+        $unit_type = sanitize_text_field(
+            $body['unit_type'] ?? ''
+        );
+
+        $unit_number = (int)(
+            $body['no_unit'] ?? 0
+        );
 
         if (!$customer_name || !$date || !$service_type) {
             return self::err(400, 'Nama customer, tanggal, dan jenis layanan wajib diisi.');
@@ -923,14 +960,37 @@ class KSTCangar_API {
         $status_normalized = $status_map[strtolower($status)] ?? 'pending';
 
         $data = [
-            'service_type'   => $service_normalized,
-            'customer_name'  => $customer_name,
-            'customer_phone' => $customer_phone,
-            'date'           => $date,
-            'quantity'       => $quantity,
-            'status'         => $status_normalized,
-            'notes'          => $notes,
-            'created_by'     => $user_id ?: get_current_user_id(),
+            'service_type'      => $service_normalized,
+
+            'customer_name'     => $customer_name,
+            'customer_phone'    => $customer_phone,
+
+            'alamat'            => sanitize_text_field($body['alamat'] ?? ''),
+
+            'date'      => sanitize_text_field($body['tanggal_checkin'] ?? ''),
+            'checkout_date'     => sanitize_text_field($body['tanggal_checkout'] ?? ''),
+
+            'unit_type'   => $unit_type,
+            'unit_number' => $unit_number,
+
+            'quantity'          => $quantity,
+
+            'harga'             => (float)($body['harga'] ?? 0),
+
+            'no_receipt'        => sanitize_text_field($body['no_receipt'] ?? ''),
+            'no_invoice'        => sanitize_text_field($body['no_invoice'] ?? ''),
+
+            'notes'             => $notes,
+
+            'bukti_pembayaran_id' => (int)($body['bukti_pembayaran_id'] ?? 0),
+
+            'bukti_pembayaran_url' => esc_url_raw(
+                $body['bukti_pembayaran_url'] ?? ''
+            ),
+
+            'status'            => $status_normalized,
+
+            'created_by'        => $user_id ?: get_current_user_id(),
         ];
 
         $wpdb->insert($wpdb->prefix . 'kst_bookings', $data);
@@ -938,6 +998,40 @@ class KSTCangar_API {
 
         if (!$booking_id) {
             return self::err(500, 'Gagal menyimpan booking: ' . $wpdb->last_error);
+        }
+        $harga = (float)($body['harga'] ?? 0);
+
+        if ($harga > 0) {
+
+            $wpdb->insert(
+                $wpdb->prefix . 'kst_finances',
+                [
+                    'booking_id'   => $booking_id,
+
+                    'type'         => 'INCOME',
+
+                    'amount'       => $harga,
+
+                    'category'     => 'BOOKING',
+
+                    'description'  => sprintf(
+                        'Booking %s - %s %s',
+                        $customer_name,
+                        $unit_type,
+                        $unit_number
+                    ),
+
+                    'date'         => $date,
+
+                    'status'       => 'VALIDATED',
+
+                    'validated_by' => $user_id ?: get_current_user_id(),
+                    'validated_at' => current_time('mysql'),
+
+                    'created_by'   => $user_id ?: get_current_user_id(),
+                    'created_at'   => current_time('mysql'),
+                ]
+            );
         }
 
         return self::ok([
@@ -989,15 +1083,162 @@ class KSTCangar_API {
             'customer_name'  => sanitize_text_field($body['nama_customer'] ?? $existing->customer_name),
             'customer_phone' => sanitize_text_field($body['no_hp'] ?? $existing->customer_phone),
             'service_type'   => $service_normalized,
-            'date'           => sanitize_text_field($body['tanggal_checkin'] ?? $existing->date),
+
+            // tanggal
+            'date'   => sanitize_text_field($body['tanggal_checkin'] ?? $existing->date),
+            'checkout_date'  => sanitize_text_field($body['tanggal_checkout'] ?? $existing->checkout_date),
+
+            // unit glamping
+            'unit_type' => sanitize_text_field(
+                $body['unit_type'] ?? $existing->unit_type
+            ),
+
+            'unit_number' => (int)(
+                $body['no_unit'] ?? $existing->unit_number
+            ),
+
+            // jumlah tamu
             'quantity'       => max(1, (int)($body['jumlah_tamu'] ?? $existing->quantity)),
+            // harga
+            'harga'          => (float)($body['harga'] ?? $existing->harga),
+            // status
             'status'         => $status_normalized,
+            // invoice & receipt
+            'no_invoice'     => sanitize_text_field($body['no_invoice'] ?? $existing->no_invoice),
+            'no_receipt'     => sanitize_text_field($body['no_receipt'] ?? $existing->no_receipt),
+            // alamat
+            'alamat'         => sanitize_textarea_field($body['alamat'] ?? $existing->alamat),
+            // notes
             'notes'          => sanitize_textarea_field($body['additional_needs'] ?? $existing->notes ?? ''),
+            'bukti_pembayaran_id' => (int)(
+                $body['bukti_pembayaran_id']
+                ?? $existing->bukti_pembayaran_id
+            ),
+
+            'bukti_pembayaran_url' => esc_url_raw(
+                $body['bukti_pembayaran_url']
+                ?? $existing->bukti_pembayaran_url
+            ),
         ];
 
-        $wpdb->update($wpdb->prefix . 'kst_bookings', $data, ['booking_id' => $booking_id]);
+        $updated = $wpdb->update(
+            $wpdb->prefix . 'kst_bookings',
+            $data,
+            ['booking_id' => $booking_id]
+        );
 
+        $updated = $wpdb->update(
+        $wpdb->prefix . 'kst_finances',
+        [
+            'amount' => (float)$data['harga'],
+
+            'description' => sprintf(
+                'Booking %s - %s %s',
+                $data['customer_name'],
+                $data['unit_type'],
+                $data['unit_number']
+            ),
+
+            'date' => $data['date']
+        ],
+        [
+            'booking_id' => $booking_id
+        ]
+    );
+
+        if ($updated === false) {
+            return self::err(500, 'Gagal memperbarui booking.');
+        }
+
+        $finance_exists = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT finance_id
+                FROM {$wpdb->prefix}kst_finances
+                WHERE booking_id = %d",
+                $booking_id
+            )
+        );
+
+        if ($finance_exists) {
+
+            // update finance yang sudah ada
+            $wpdb->update(
+                $wpdb->prefix . 'kst_finances',
+                [
+                    'amount' => (float)$data['harga'],
+
+                    'description' => sprintf(
+                        'Booking %s - %s %s',
+                        $data['customer_name'],
+                        $data['unit_type'],
+                        $data['unit_number']
+                    ),
+
+                    'date' => $data['date']
+                ],
+                [
+                    'booking_id' => $booking_id
+                ]
+            );
+
+        } else {
+
+            // khusus data lama yang belum punya relasi finance
+            $wpdb->insert(
+                $wpdb->prefix . 'kst_finances',
+                [
+                    'booking_id' => $booking_id,
+
+                    'type' => 'INCOME',
+
+                    'amount' => (float)$data['harga'],
+
+                    'category' => 'BOOKING',
+
+                    'description' => sprintf(
+                        'Booking %s - %s %s',
+                        $data['customer_name'],
+                        $data['unit_type'],
+                        $data['unit_number']
+                    ),
+
+                    'date' => $data['date'],
+
+                    'status' => 'VALIDATED',
+
+                    'validated_by' => get_current_user_id(),
+                    'validated_at' => current_time('mysql'),
+
+                    'created_by' => get_current_user_id(),
+                    'created_at' => current_time('mysql'),
+                ]
+            );
+        }
         return self::ok(['message' => 'Booking berhasil diperbarui.']);
+    }
+
+    public static function upload_bukti(WP_REST_Request $request): WP_REST_Response
+    {
+        if (empty($_FILES['file'])) {
+            return self::err(400, 'File tidak ditemukan.');
+        }
+
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        require_once ABSPATH . 'wp-admin/includes/media.php';
+        require_once ABSPATH . 'wp-admin/includes/image.php';
+
+        $attachment_id = media_handle_upload('file', 0);
+
+        if (is_wp_error($attachment_id)) {
+            return self::err(500, $attachment_id->get_error_message());
+        }
+
+        $url = wp_get_attachment_url($attachment_id);
+
+        return self::ok([
+            'attachment_id' => $attachment_id,
+            'url'           => $url,
+        ]);
     }
 
     public static function delete_booking(WP_REST_Request $request): WP_REST_Response {
@@ -1014,6 +1255,7 @@ class KSTCangar_API {
             return self::err(404, 'Booking tidak ditemukan.');
         }
 
+        $wpdb->delete($wpdb->prefix . 'kst_finances',['booking_id' => $booking_id]);
         $wpdb->delete($wpdb->prefix . 'kst_bookings', ['booking_id' => $booking_id]);
 
         return self::ok(['message' => 'Booking berhasil dihapus.']);
