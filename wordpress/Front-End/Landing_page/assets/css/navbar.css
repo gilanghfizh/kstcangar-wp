@@ -1,0 +1,68 @@
+/* =========================
+   NAVBAR
+========================= */
+
+header{
+  width:100%;
+  background:#fff;
+  position:fixed;
+  top:0;
+  left:0;
+  z-index:999;
+  box-shadow:0 2px 10px rgba(0,0,0,.05);
+}
+
+.navbar{
+  height:72px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.logo-circle{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#1ea75a,#0c7c45);
+}
+
+.logo-text h2{
+  font-size:18px;
+  color:#0d944b;
+  font-weight:700;
+}
+
+.logo-text p{
+  font-size:12px;
+  color:#777;
+}
+
+.nav-menu{
+  display:flex;
+  gap:30px;
+}
+
+.nav-menu a{
+  font-size:14px;
+  color:#444;
+  transition:.3s;
+}
+
+.nav-menu a:hover{
+  color:#0d944b;
+}
+
+/* Responsive - Navbar */
+@media(max-width:768px){
+  .navbar{
+    flex-direction:column;
+    height:auto;
+    padding:20px 0;
+  }
+}
